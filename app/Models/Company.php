@@ -32,6 +32,11 @@ class Company extends Model
         return $this->hasMany(Customer::class);
     }
 
+    public function owners(): HasMany
+    {
+        return $this->hasMany(Owner::class);
+    }
+
     public function cnpj(): Attribute
     {
         return Attribute::make(

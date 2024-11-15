@@ -4,10 +4,9 @@ namespace App\Filament\App\Resources;
 
 use App\Enum\MaritalStatusEnum;
 use App\Enum\PersonTypeEnum;
-use App\Enum\RoleEnum;
-use App\Filament\App\Resources\CustomerResource\Pages;
-use App\Filament\App\Resources\CustomerResource\RelationManagers;
-use App\Models\Customer;
+use App\Filament\App\Resources\OwnerResource\Pages;
+use App\Filament\App\Resources\OwnerResource\RelationManagers;
+use App\Models\Owner;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,19 +16,18 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class CustomerResource extends Resource
+class OwnerResource extends Resource
 {
-    protected static ?string $model = Customer::class;
+    protected static ?string $model = Owner::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $label = 'Cliente';
-    protected static ?string $pluralLabel = 'Clientes';
+    protected static ?string $label = 'Proprietário';
+
+    protected static ?string $pluralLabel = 'Proprietários';
 
     public static function form(Form $form): Form
     {
-        $user = $form->getModelInstance()?->user;
-
         return $form
             ->schema([
                 Forms\Components\Grid::make()->schema([
@@ -46,15 +44,12 @@ class CustomerResource extends Resource
                                     ->required()
                                     ->email()
                                     ->maxLength(255)
-                                    ->unique(table: 'users', column: 'email', ignorable: $user),
+                                    ->unique('users', 'email'),
                                 Forms\Components\Select::make('user.person_type')
                                     ->label('Tipo de pessoa')
                                     ->options(PersonTypeEnum::toOptions())
                                     ->required(),
-                                Forms\Components\TextInput::make('user.cpf_cnpj')
-                                    ->label('CPF/CNPJ')
-                                    ->required()
-                                    ->unique(table: 'users', column: 'users.cpf_cnpj', ignorable: $user),
+                                Forms\Components\TextInput::make('user.cpf_cnpj')->label('CPF/CNPJ')->required(),
                             ])->visibleOn('create'),
                             Forms\Components\Fieldset::make('Informações Básicas')->schema([
                                 Forms\Components\TextInput::make('name')
@@ -67,61 +62,26 @@ class CustomerResource extends Resource
                                     ->required()
                                     ->email()
                                     ->maxLength(255)
-                                    ->unique(table: 'users', column: 'email', ignorable: $user),
+                                    ->unique('users'),
                                 Forms\Components\Select::make('person_type')
                                     ->label('Tipo de pessoa')
                                     ->options(PersonTypeEnum::toOptions())
                                     ->required(),
                                 Forms\Components\TextInput::make('cpf_cnpj')
-                                    ->label('CPF/CNPJ')
-                                    ->required()
-                                    ->unique(table: 'users', ignorable: $user)
-                                    ->readOnly()
-                                    ->visibleOn('edit'),
-                            ])->visibleOn('edit')->relationship('user'),
-                            Forms\Components\Fieldset::make('CNH')->schema([
-                                Forms\Components\TextInput::make('cnh_number')
-                                    ->label('Número')
-                                    ->placeholder('999999999999')
-                                    ->required()
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('cnh_category')
-                                    ->label('Categoria')
-                                    ->required()
-                                    ->placeholder('B')
-                                    ->maxLength(255),
-                                Forms\Components\DatePicker::make('cnh_expiration_date')->label('Data de vencimento')
-                                    ->format('Y-m-d')
-                                    ->displayFormat('d/m/Y')
-                                    ->required(),
-                                Forms\Components\TextInput::make('cnh_security_code')
-                                    ->label('Código de segurança')
-                                    ->placeholder('0000000000000')
-                                    ->maxLength(255)
-                                    ->required(),
-                            ]),
-                        ]),
+                                    ->label('CPF/CNPJ')->readOnly(),
+                            ])->visibleOn('edit')
+                            ->relationship('user'),
 
-                        Forms\Components\Tabs\Tab::make('Informações Adicionais')->schema([
-                            Forms\Components\Fieldset::make('Dados Pessoais')->schema([
+                            Forms\Components\Fieldset::make('Dados adicionais')->schema([
                                 Forms\Components\TextInput::make('rg')
                                     ->label('RG')
                                     ->placeholder('99999999')
                                     ->maxLength(255),
-                                Forms\Components\DatePicker::make('birthday')
-                                    ->label('Data de nascimento')
-                                    ->required()
-                                    ->format('Y-m-d')
-                                    ->displayFormat('d/m/Y')
-                                    ->maxDate(now()->subYears(18)),
-                                Forms\Components\Select::make('marital_status')->options(MaritalStatusEnum::toOptions())
-                                    ->label('Estado civil')
-                                    ->required(),
-                                Forms\Components\TextInput::make('profession')
-                                    ->label('Profissão')
-                                    ->placeholder('Engenheiro')
+                                Forms\Components\TextInput::make('ie')
+                                    ->label('Inscrição Estadual')
+                                    ->placeholder('99999999')
                                     ->maxLength(255),
-                            ])
+                            ]),
                         ]),
                     ])
                 ])->columns(1),
@@ -164,9 +124,9 @@ class CustomerResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCustomers::route('/'),
-            'create' => Pages\CreateCustomer::route('/create'),
-            'edit' => Pages\EditCustomer::route('/{record}/edit'),
+            'index' => Pages\ListOwners::route('/'),
+            'create' => Pages\CreateOwner::route('/create'),
+            'edit' => Pages\EditOwner::route('/{record}/edit'),
         ];
     }
 }
