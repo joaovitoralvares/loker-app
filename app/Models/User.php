@@ -6,6 +6,7 @@ use Filament\Facades\Filament;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -92,5 +93,12 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function canAccessTenant(\Illuminate\Database\Eloquent\Model $tenant): bool
     {
         return true;
+    }
+
+    public function cpfCnpj(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => preg_replace('/\D/', '', $value)
+        );
     }
 }

@@ -51,7 +51,13 @@ class CreateCompany extends CreateRecord
                         ->label('E-mail')
                         ->required()
                         ->maxLength(255)
-                        ->email()
+                        ->email(),
+                    TextInput::make('user.cpf_cnpj')
+                        ->label('CPF')
+                        ->mask('999.999.999-99')
+                        ->placeholder('000.000.000-00')
+                        ->required()
+                        ->rule('cpf')
 
                 ])
         ];
@@ -66,7 +72,8 @@ class CreateCompany extends CreateRecord
         $user = new User();
         $user->name = $data['user']['name'];
         $user->email = $data['user']['email'];
-        $user->password = $company->cnpj;
+        $user->cpf_cnpj = $data['user']['cpf_cnpj'];
+        $user->password = $user->cpf_cnpj;
 
         DB::transaction(function () use ($user, $company) {
             $company->save();
