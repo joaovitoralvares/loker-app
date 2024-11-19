@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Vehicle\Brand;
+use App\Models\Vehicle\Category;
+use App\Models\Vehicle\Vehicle;
+use App\Models\Vehicle\VehicleModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -37,6 +41,25 @@ class Company extends Model
         return $this->hasMany(Owner::class);
     }
 
+    public function brands(): HasMany
+    {
+        return $this->hasMany(Brand::class);
+    }
+
+    public function vehicleModels(): HasMany
+    {
+        return $this->hasMany(VehicleModel::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
+
+    public function vehicles(): HasMany
+    {
+        return $this->hasMany(Vehicle::class);
+    }
     public function cnpj(): Attribute
     {
         return Attribute::make(

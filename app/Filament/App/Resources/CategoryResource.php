@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Filament\App\Resources;
+
+use App\Filament\App\Resources\CategoryResource\Pages;
+use App\Filament\App\Resources\CategoryResource\RelationManagers;
+use App\Models\Category;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Support\RawJs;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class CategoryResource extends Resource
+{
+    protected static ?string $model = \App\Models\Vehicle\Category::class;
+
+    protected static ?string $navigationGroup = 'Veículos';
+
+    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+
+    protected static ?string $label = 'Categoria';
+
+    protected static ?string $pluralLabel = 'Categorias';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('description')
+                    ->required()
+                    ->maxLength(255)
+                    ->label('Descrição'),
+                Forms\Components\TextInput::make('daily_price')
+                    ->placeholder('90,50')
+                    ->mask(RawJs::make(<<<'JS'
+                            $money($input, ',')
+                        JS
+                        ))
+                        ->prefix('R$')
+                        ->required()
+                        ->maxValue(10000)
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\Layout\Split::make([
+                    Tables\Columns\TextColumn::make('description'),
+                    Tables\Columns\TextColumn::make('daily_price')->money('BRL')->description('Diária', 'above'),
+                ])->from('lg')
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ManageCategories::route('/'),
+        ];
+    }
+}
