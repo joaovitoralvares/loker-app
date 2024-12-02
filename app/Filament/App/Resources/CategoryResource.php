@@ -33,7 +33,9 @@ class CategoryResource extends Resource
                 Forms\Components\TextInput::make('description')
                     ->required()
                     ->maxLength(255)
-                    ->label('Descrição'),
+                    ->label('Descrição')
+                    ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
+                ,
                 Forms\Components\TextInput::make('daily_price')
                     ->placeholder('90,50')
                     ->mask(RawJs::make(<<<'JS'

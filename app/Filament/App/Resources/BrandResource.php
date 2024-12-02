@@ -33,6 +33,7 @@ class BrandResource extends Resource
                     ->label('Nome')
                     ->required()
                     ->maxLength(255)
+                    ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
                     ->unique(
                         ignoreRecord: true,
                         modifyRuleUsing: fn(Unique $rule) => $rule->where('company_id', Filament::getTenant()->id),

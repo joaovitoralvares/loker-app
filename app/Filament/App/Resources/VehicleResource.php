@@ -89,10 +89,14 @@ class VehicleResource extends Resource
                             Forms\Components\TextInput::make('plate')
                                 ->required()
                                 ->label('Placa')
-                                ->unique(),
+                                ->unique()
+                                ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
+                            ,
                             Forms\Components\TextInput::make('color')
                                 ->required()
-                                ->label('Cor'),
+                                ->label('Cor')
+                                ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
+                            ,
                             Forms\Components\Select::make('owner_id')
                                 ->options(Owner::query()->join('users', 'users.id', '=', 'owners.user_id')->pluck('users.name', 'owners.id'))
                                 ->searchable()

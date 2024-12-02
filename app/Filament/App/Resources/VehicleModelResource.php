@@ -38,14 +38,17 @@ class VehicleModelResource extends Resource
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->maxLength(255)
-                            ->label('Nome'),
+                            ->label('Nome')
+                            ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()']),
                     ])
                     ->createOptionModalHeading('Cadastrar Nova Marca')
                     ->required(),
                 Forms\Components\TextInput::make('description')
                     ->label('Descrição')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
+                ,
             ]);
     }
 

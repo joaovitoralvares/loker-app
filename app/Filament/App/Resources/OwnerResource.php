@@ -38,7 +38,9 @@ class OwnerResource extends Resource
                                     ->label('Nome')
                                     ->placeholder('José da Silva')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
+                                ,
                                 Forms\Components\TextInput::make('user.email')
                                     ->placeholder('jose@silva.com.br')
                                     ->required()
@@ -56,7 +58,9 @@ class OwnerResource extends Resource
                                     ->label('Nome')
                                     ->placeholder('José da Silva')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
+                                ,
                                 Forms\Components\TextInput::make('email')
                                     ->placeholder('jose@silva.com.br')
                                     ->required()

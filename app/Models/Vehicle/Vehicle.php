@@ -4,8 +4,10 @@ namespace App\Models\Vehicle;
 
 use App\Models\Company;
 use App\Models\Owner;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class Vehicle extends Model
 {
@@ -52,5 +54,19 @@ class Vehicle extends Model
     public function model(): BelongsTo
     {
         return $this->belongsTo(VehicleModel::class);
+    }
+
+    public function color(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Str::upper($value),
+        );
+    }
+
+    public function plate(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Str::upper($value),
+        );
     }
 }
