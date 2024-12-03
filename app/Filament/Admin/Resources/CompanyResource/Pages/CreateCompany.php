@@ -20,6 +20,9 @@ class CreateCompany extends CreateRecord
     protected static ?string $title = 'Cadastrar Empresa';
     protected static bool $canCreateAnother = false;
 
+    /**
+     * @return Step[]
+     */
     public function getSteps(): array
     {
         return [
@@ -63,6 +66,18 @@ class CreateCompany extends CreateRecord
         ];
     }
 
+    /**
+     * @param array{
+     *     name: string,
+     *     cnpj: string,
+     *     user: array{
+     *         name: string,
+     *         email: string,
+     *         cpf_cnpj: string,
+     *     }
+     * } $data
+     * @return Model
+     */
     protected function handleRecordCreation(array $data): Model
     {
         $company = new Company();

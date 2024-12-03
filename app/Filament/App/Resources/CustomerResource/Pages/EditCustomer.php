@@ -3,6 +3,8 @@
 namespace App\Filament\App\Resources\CustomerResource\Pages;
 
 use App\Filament\App\Resources\CustomerResource;
+use App\Models\Customer;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -19,7 +21,9 @@ class EditCustomer extends EditRecord
 
     public function mutateFormDataBeforeFill(array $data): array
     {
-        $data['user'] = $this->record->user->toArray();
+        /** @var Customer $customer */
+        $customer = $this->record;
+        $data['user'] = $customer->user?->toArray();
         return $data;
     }
 }

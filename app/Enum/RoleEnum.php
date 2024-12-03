@@ -8,6 +8,9 @@ enum RoleEnum: string
     case OWNER = 'owner';
     case CUSTOMER = 'customer';
 
+    /**
+     * @return string[]
+     */
     public static function toOptions(): array
     {
         return [

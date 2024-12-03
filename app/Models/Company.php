@@ -11,6 +11,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property-read int $id
+ * @property string $name
+ * @property string $cnpj
+ */
 class Company extends Model
 {
     protected $table = 'companies';
@@ -20,46 +25,74 @@ class Company extends Model
         'cnpj'
     ];
 
+    /**
+     * @return BelongsToMany<User, $this>
+     */
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
             ->withPivot('role');
     }
 
+    /**
+     * @return HasMany<CompanyUser, $this>
+     */
     public function companyUsers(): HasMany
     {
         return $this->hasMany(CompanyUser::class);
     }
 
+    /**
+     * @return HasMany<Customer, $this>
+     */
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
     }
 
+    /**
+     * @return HasMany<Owner, $this>
+     */
     public function owners(): HasMany
     {
         return $this->hasMany(Owner::class);
     }
 
+    /**
+     * @return HasMany<Brand, $this>
+     */
     public function brands(): HasMany
     {
         return $this->hasMany(Brand::class);
     }
 
+    /**
+     * @return HasMany<VehicleModel, $this>
+     */
     public function vehicleModels(): HasMany
     {
         return $this->hasMany(VehicleModel::class);
     }
 
+    /**
+     * @return HasMany<Category, $this>
+     */
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
     }
 
+    /**
+     * @return HasMany<Vehicle, $this>
+     */
     public function vehicles(): HasMany
     {
         return $this->hasMany(Vehicle::class);
     }
+
+    /**
+     * @return Attribute<string, string>
+     */
     public function cnpj(): Attribute
     {
         return Attribute::make(

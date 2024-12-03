@@ -6,15 +6,14 @@ use App\Enum\MaritalStatusEnum;
 use App\Enum\PersonTypeEnum;
 use App\Enum\RoleEnum;
 use App\Filament\App\Resources\CustomerResource\Pages;
-use App\Filament\App\Resources\CustomerResource\RelationManagers;
 use App\Models\Customer;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class CustomerResource extends Resource
@@ -28,7 +27,10 @@ class CustomerResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $user = $form->getModelInstance()?->user;
+        /** @var Customer $customer */
+        $customer = $form->getModelInstance();
+        /** @var User $user */
+        $user = $customer->user;
 
         return $form
             ->schema([

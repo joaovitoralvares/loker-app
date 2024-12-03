@@ -3,8 +3,8 @@
 namespace App\Filament\App\Resources;
 
 use App\Filament\App\Resources\BrandResource\Pages;
-use App\Filament\App\Resources\BrandResource\RelationManagers;
-use App\Models\Brand;
+use App\Models\Vehicle\Brand;
+use App\Models\Company;
 use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -12,13 +12,11 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Validation\Rules\Unique;
 
 class BrandResource extends Resource
 {
-    protected static ?string $model = \App\Models\Vehicle\Brand::class;
+    protected static ?string $model = Brand::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-hashtag';
     protected static ?string $navigationGroup = 'Veículos';
@@ -36,7 +34,11 @@ class BrandResource extends Resource
                     ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
                     ->unique(
                         ignoreRecord: true,
-                        modifyRuleUsing: fn(Unique $rule) => $rule->where('company_id', Filament::getTenant()->id),
+                        modifyRuleUsing: function (Unique $rule) {
+                            /** @var Company $company */
+                            $company = Filament::getTenant();
+                            return $rule->where('company_id', $company->id);
+                            },
                     ),
             ]);
     }
