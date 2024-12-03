@@ -19,6 +19,9 @@ enum VehicleStatusEnum: string
         };
     }
 
+    /**
+     * @return string[]
+     */
     public static function toOptions(): array
     {
         return [

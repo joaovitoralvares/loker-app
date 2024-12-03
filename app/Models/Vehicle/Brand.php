@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
+/**
+ * @property-read int $id
+ * @property string $name
+ * @property int $company_id
+ */
 class Brand extends Model
 {
     protected $table = 'vehicle_brands';
@@ -16,11 +21,17 @@ class Brand extends Model
         'company_id',
     ];
 
+    /**
+     * @return BelongsTo<Company, $this>
+     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function name(): Attribute
     {
         return Attribute::make(

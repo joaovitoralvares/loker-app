@@ -7,6 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
+/**
+ * @property-read int $id
+ * @property int $user_id
+ * @property int $company_id
+ * @property string $marital_status
+ * @property string $birthday
+ * @property string $gender
+ * @property string $profession
+ * @property string $cnh_number
+ * @property string $cnh_security_code
+ * @property string $cnh_category
+ * @property string $cnh_expiration_date
+ */
 class Customer extends Model
 {
     protected $table = 'customers';
@@ -24,16 +37,25 @@ class Customer extends Model
         'cnh_expiration_date',
     ];
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * @return BelongsTo<Company, $this>
+     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function profession(): Attribute
     {
         return Attribute::make(

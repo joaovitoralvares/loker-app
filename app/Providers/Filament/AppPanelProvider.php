@@ -4,6 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Enum\RoleEnum;
 use App\Models\Company;
+use App\Models\CompanyUser;
+use App\Models\User;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -16,6 +18,7 @@ use Filament\Support\Colors\Color;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
@@ -50,7 +53,15 @@ class AppPanelProvider extends PanelProvider
             ])
             ->userMenuItems([
                 'account' => MenuItem::make()->label(
-                    fn () => auth()->user()->name . ' - ' . RoleEnum::from(auth()->user()->companies()->find(Filament::getTenant()->id)->pivot->role)->label()
+                    function () {
+                        /** @var User $user */
+                        $user = auth()->user();
+                        /** @var Company $company */
+                        $company = Filament::getTenant();
+                        /** @var CompanyUser $userCompany */
+                        $userCompany = $user->userCompanies()->find($company->id);
+                        return $user->name . ' - ' . RoleEnum::from($userCompany->role)->label();
+                    }
                 ),
             ])
             ->middleware([

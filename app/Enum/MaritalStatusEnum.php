@@ -19,6 +19,9 @@ enum MaritalStatusEnum: string
         };
     }
 
+    /**
+     * @return string[]
+     */
     public static function toOptions(): array
     {
         return [

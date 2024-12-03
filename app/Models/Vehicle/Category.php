@@ -9,6 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
+/**
+ * @property-read int $id
+ * @property int $company_id
+ * @property string $description
+ * @property int $daily_price
+ */
 class Category extends Model
 {
     protected $table = 'vehicle_categories';
@@ -23,11 +29,17 @@ class Category extends Model
         'daily_price' => MoneyCast::class
     ];
 
+    /**
+     * @return BelongsTo<Company, $this>
+     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /**
+     * @return Attribute<string, string>
+     */
     public function description(): Attribute
     {
         return Attribute::make(
