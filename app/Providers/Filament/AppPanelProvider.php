@@ -30,6 +30,7 @@ class AppPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->default()
             ->id('app')
             ->path('')
             ->login()
@@ -59,7 +60,7 @@ class AppPanelProvider extends PanelProvider
                         /** @var Company $company */
                         $company = Filament::getTenant();
                         /** @var CompanyUser $userCompany */
-                        $userCompany = $user->userCompanies()->find($company->id);
+                        $userCompany = $user->userCompanies()->where('company_id', $company->id)->first();
                         return $user->name . ' - ' . RoleEnum::from($userCompany->role)->label();
                     }
                 ),
