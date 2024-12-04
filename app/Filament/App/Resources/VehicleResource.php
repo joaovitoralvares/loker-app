@@ -67,7 +67,7 @@ class VehicleResource extends Resource
                                 ->label('Marca'),
                             Forms\Components\Select::make('model_id')
                                 ->relationship('model', 'description')
-                                ->options(fn(Forms\Get $get) => VehicleModel::where('brand_id', $get('brand_id'))->pluck('description', 'id'))
+                                ->options(fn(Forms\Get $get) => VehicleModelResource::getEloquentQuery()->where('brand_id', $get('brand_id'))->pluck('description', 'id'))
                                 ->disabled(fn(Forms\Get $get) => !filled($get('brand_id')))
                                 ->createOptionForm(fn(Form $form) => VehicleModelResource::form($form))
                                 ->createOptionUsing(function (array $data) {
@@ -98,7 +98,7 @@ class VehicleResource extends Resource
                                 ->extraInputAttributes(['onChange' => 'this.value = this.value.toUpperCase()'])
                             ,
                             Forms\Components\Select::make('owner_id')
-                                ->options(Owner::query()->join('users', 'users.id', '=', 'owners.user_id')->pluck('users.name', 'owners.id'))
+                                ->options(OwnerResource::getEloquentQuery()->join('users', 'users.id', '=', 'owners.user_id')->pluck('users.name', 'owners.id'))
                                 ->searchable()
                                 ->preload()
                                 ->label('Proprietário')
