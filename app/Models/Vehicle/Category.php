@@ -7,6 +7,7 @@ use App\Models\Company;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 /**
@@ -25,16 +26,20 @@ class Category extends Model
         'daily_price'
     ];
 
-    protected $casts = [
-        'daily_price' => MoneyCast::class
-    ];
-
     /**
      * @return BelongsTo<Company, $this>
      */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * @return HasMany<Vehicle>
+     */
+    public function vehicles(): HasMany
+    {
+        return $this->hasMany(Vehicle::class);
     }
 
     /**

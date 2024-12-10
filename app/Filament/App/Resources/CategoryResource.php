@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources;
 use App\Filament\App\Resources\CategoryResource\Pages;
 use App\Filament\App\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
+use App\ValueObjects\MoneyValue;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Number;
 
 class CategoryResource extends Resource
 {
@@ -38,6 +40,9 @@ class CategoryResource extends Resource
                 ,
                 Forms\Components\TextInput::make('daily_price')
                     ->placeholder('90,50')
+                    ->label('Diária')
+                    ->formatStateUsing(fn ($state) => !empty($state) ? MoneyValue::from($state)->toBRL() : 0)
+                    ->dehydrateStateUsing(fn ($state) =>!empty($state) ? MoneyValue::fromBRL($state)->getRawAmount() : 0)
                     ->mask(RawJs::make(<<<'JS'
                             $money($input, ',')
                         JS
@@ -54,7 +59,9 @@ class CategoryResource extends Resource
             ->columns([
                 Tables\Columns\Layout\Split::make([
                     Tables\Columns\TextColumn::make('description'),
-                    Tables\Columns\TextColumn::make('daily_price')->money('BRL')->description('Diária', 'above'),
+                    Tables\Columns\TextColumn::make('daily_price')
+                        ->formatStateUsing(fn ($state) => Number::currency($state/100, 'BRL'))
+                        ->description('Diária', 'above'),
                 ])->from('lg')
             ])
             ->filters([

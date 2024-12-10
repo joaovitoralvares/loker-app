@@ -2,8 +2,10 @@
 
 namespace App\Models\Vehicle;
 
+use App\Enum\VehicleStatusEnum;
 use App\Models\Company;
 use App\Models\Owner;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -108,5 +110,19 @@ class Vehicle extends Model
         return Attribute::make(
             set: fn ($value) => Str::upper($value),
         );
+    }
+
+    public function scopeAvailable(Builder $query): void
+    {
+        $query->where('status', VehicleStatusEnum::AVAILABLE);
+    }
+
+    public function description(): string
+    {
+        return $this->category->description
+            . ' - '
+            . $this->model->description
+            . ' - '
+            . $this->plate;
     }
 }

@@ -96,6 +96,22 @@ class Company extends Model
     }
 
     /**
+     * @return HasMany<Contract>
+     */
+    public function contracts(): HasMany
+    {
+        return $this->hasMany(Contract::class);
+    }
+
+    /**
+     * @return HasMany<SecurityDepositAccount>
+     */
+    public function securityDepositAccounts(): HasMany
+    {
+        return $this->hasMany(SecurityDepositAccount::class);
+    }
+
+    /**
      * @return Attribute<string, string>
      */
     public function cnpj(): Attribute
