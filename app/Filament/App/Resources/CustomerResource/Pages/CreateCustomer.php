@@ -24,12 +24,14 @@ class CreateCustomer extends CreateRecord
 
     public function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
     {
+        $userData = $data['user'];
+        unset($data['user']);
         /** @var Company $company */
         $company = Filament::getTenant();
         $customer = $company->customers()->make($data);
 
-        DB::transaction(function () use ($company, $data, $customer) {
-            $user = $company->users()->create($data['user'], ['role' => RoleEnum::CUSTOMER->value]);
+        DB::transaction(function () use ($company, $userData, $customer) {
+            $user = $company->users()->create($userData, ['role' => RoleEnum::CUSTOMER->value]);
             $customer->user_id = $user->id;
             $customer->save();
         });
