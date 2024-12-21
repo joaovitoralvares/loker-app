@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enum\ContractInvoiceStatusEnum;
 use App\Models\Vehicle\Vehicle;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contract extends Model
 {
@@ -40,5 +42,21 @@ class Contract extends Model
     public function vehicle(): BelongsTo
     {
         return $this->belongsTo(Vehicle::class);
+    }
+
+    /**
+     * @return HasMany<Invoice>
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * @return HasMany<Invoice>
+     */
+    public function pendingPaymentInvoices(): HasMany
+    {
+        return $this->invoices()->whereNotIn('status', [ContractInvoiceStatusEnum::DRAFT->value, ContractInvoiceStatusEnum::PAID->value]);
     }
 }

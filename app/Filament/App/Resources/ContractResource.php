@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources;
 
 use App\Casts\MoneyCast;
+use App\Enum\ContractStatusEnum;
 use App\Filament\App\Resources\ContractResource\Pages;
 use App\Filament\App\Resources\ContractResource\RelationManagers;
 use App\Models\Contract;
@@ -14,6 +15,7 @@ use App\ValueObjects\MoneyValue;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Support\Enums\Alignment;
 use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -25,6 +27,8 @@ use Illuminate\Support\Str;
 class ContractResource extends Resource
 {
     protected static ?string $model = Contract::class;
+    protected static ?string $label = 'Contrato';
+    protected static ?string $pluralLabel = 'Contratos';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -146,6 +150,9 @@ class ContractResource extends Resource
                     Forms\Components\Checkbox::make('auto_renew')
                         ->label('Renovação automática')
                         ->default(true),
+                    Forms\Components\Placeholder::make('total_pending_amount')->content(function (Contract $contract) {
+                        return MoneyValue::from($contract->pendingPaymentInvoices()->sum('amount') ?? 0)->toBRL();
+                    })->label('Total pendente')
                 ])
 
             ]);
@@ -153,21 +160,46 @@ class ContractResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
+        return $table->modifyQueryUsing(fn(Builder $query) => $query->withSum('pendingPaymentInvoices as total_amount_pending', 'amount'))
             ->columns([
                 Tables\Columns\Layout\Split::make([
-                    Tables\Columns\TextColumn::make('vehicle.model.description')
+                    Tables\Columns\TextColumn::make('vehicle.model.description')->verticallyAlignStart()
                         ->description('Descrição', 'above'),
-                    Tables\Columns\TextColumn::make('customer.user.name')
+                    Tables\Columns\TextColumn::make('customer.user.name')->verticallyAlignStart()
                         ->description('Cliente', 'above'),
-                    Tables\Columns\TextColumn::make('owner.user.name')
-                        ->description('Proprietário', 'above'),
-                    Tables\Columns\TextColumn::make('vehicle.category.daily_price')
-                        ->formatStateUsing(fn($state) => Number::currency($state / 100 ?? 0, 'BRL', 'pt_BR'))
-                        ->description('Diária', 'above'),
-                    Tables\Columns\TextColumn::make('status')
-                        ->description('Status', 'above')
-                ])->from('lg')
+
+                    Tables\Columns\Layout\Stack::make([
+                        Tables\Columns\TextColumn::make('status')
+                            ->verticallyAlignStart()
+                            ->formatStateUsing(fn($state) => match ($state) {
+                                ContractStatusEnum::ACTIVE->value => 'Ativo',
+                                ContractStatusEnum::FINISHED => 'Finalizado',
+                            })
+                            ->color(fn(string $state): string => match ($state) {
+                                ContractStatusEnum::ACTIVE->value => 'success',
+                                default => 'gray',
+                            })->icon(
+                                fn(string $state): string => match ($state) {
+                                    ContractStatusEnum::ACTIVE->value => 'heroicon-o-play',
+                                    default => 'heroicon-o-ellipsis-horizontal-circle',
+                                }
+                            )->description('Status', 'above'),
+                    ])
+                ])->from('md'),
+                Tables\Columns\Layout\Panel::make([
+                    Tables\Columns\Layout\Split::make([
+                        Tables\Columns\TextColumn::make('vehicle.category.daily_price')
+                            ->money('BRL', 100)
+                            ->description('Diária', 'above'),
+                        Tables\Columns\TextColumn::make('owner.user.name')
+                            ->description('Proprietário', 'above'),
+                        Tables\Columns\TextColumn::make('total_amount_pending')
+                            ->money('BRL', 100)
+                            ->default(0)
+                            ->description('Total pendente', 'above'),
+                    ])->from('lg'),
+
+                ])->collapsible()
             ])
             ->filters([
                 //
@@ -185,7 +217,7 @@ class ContractResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\InvoicesRelationManager::class
         ];
     }
 

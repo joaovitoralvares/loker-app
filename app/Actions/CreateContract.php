@@ -9,11 +9,12 @@ use App\Enum\VehicleStatusEnum;
 use App\Models\Contract;
 use App\Models\SecurityDepositAccount;
 use App\Models\Vehicle\Vehicle;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 readonly class CreateContract
 {
-    public function __construct(private MakeDeposit $makeDeposit)
+    public function __construct(private MakeDeposit $makeDeposit, private GenerateInvoice $generateInvoice)
     {}
 
     /**
@@ -59,6 +60,8 @@ readonly class CreateContract
                 'amount' => $data['security_deposit_amount'],
                 'contract_id' => $contract->id,
             ]);
+
+            $this->generateInvoice->execute($contract, Carbon::parse($contract->start_date));
         });
 
         return $contract;

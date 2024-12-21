@@ -112,6 +112,14 @@ class Company extends Model
     }
 
     /**
+     * @return HasMany<Invoice>
+     */
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    /**
      * @return Attribute<string, string>
      */
     public function cnpj(): Attribute

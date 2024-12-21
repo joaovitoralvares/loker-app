@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Filament\App\Resources\InvoiceResource\Pages;
+
+use App\Filament\App\Resources\InvoiceResource;
+use Filament\Actions;
+use Filament\Resources\Pages\ViewRecord;
+
+class ViewInvoice extends ViewRecord
+{
+    protected static string $resource = InvoiceResource::class;
+}
