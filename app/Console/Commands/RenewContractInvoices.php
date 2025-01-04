@@ -2,6 +2,9 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\GenerateInvoice;
+use App\Enum\ContractStatusEnum;
+use App\Models\Contract;
 use Illuminate\Console\Command;
 
 class RenewContractInvoices extends Command
@@ -23,8 +26,15 @@ class RenewContractInvoices extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(GenerateInvoice $generateInvoice)
     {
-        //
+        $contracts = Contract::query()
+            ->where('status', ContractStatusEnum::ACTIVE->value)
+            ->where('auto_renew', true)
+            ->get();
+
+        foreach ($contracts as $contract) {
+            $generateInvoice->execute($contract, now());
+        }
     }
 }
