@@ -120,6 +120,14 @@ class Company extends Model
     }
 
     /**
+     * @return HasMany<OwnerTransfer>
+     */
+    public function transfers(): HasMany
+    {
+        return $this->hasMany(OwnerTransfer::class);
+    }
+
+    /**
      * @return Attribute<string, string>
      */
     public function cnpj(): Attribute

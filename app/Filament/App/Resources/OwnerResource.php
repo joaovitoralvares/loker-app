@@ -66,7 +66,7 @@ class OwnerResource extends Resource
                                     ->required()
                                     ->email()
                                     ->maxLength(255)
-                                    ->unique('users'),
+                                    ->unique('users', ignorable: $form->getRecord()?->user),
                                 Forms\Components\Select::make('person_type')
                                     ->label('Tipo de pessoa')
                                     ->options(PersonTypeEnum::toOptions())
@@ -85,6 +85,11 @@ class OwnerResource extends Resource
                                     ->label('Inscrição Estadual')
                                     ->placeholder('99999999')
                                     ->maxLength(255),
+                                Forms\Components\TextInput::make('take_rate')
+                                ->label('Taxa de administração (%)')
+                                ->formatStateUsing(fn ($state) => $state * 100)
+                                ->dehydrateStateUsing(fn ($state) => $state / 100)
+                                ->numeric(),
                             ]),
                         ]),
                     ])

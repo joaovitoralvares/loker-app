@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property-read int $id
@@ -20,7 +21,8 @@ class Owner extends Model
         'user_id',
         'company_id',
         'rg',
-        'ie'
+        'ie',
+        'take_rate'
     ];
 
     /**
@@ -37,5 +39,10 @@ class Owner extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(OwnerTransaction::class);
     }
 }

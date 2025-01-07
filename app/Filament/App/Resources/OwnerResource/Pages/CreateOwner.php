@@ -25,10 +25,12 @@ class CreateOwner extends CreateRecord
     {
         /** @var Company $company */
         $company = Filament::getTenant();
-        $owner = $company->owners()->make($data);
+        $owner = $company->owners()->make([]);
 
         DB::transaction(function () use ($company, $data, $owner) {
             $user = $company->users()->create($data['user'], ['role' => RoleEnum::OWNER->value]);
+            unset($data['user']);
+            $owner->fill($data);
             $owner->user_id = $user->id;
             $owner->save();
         });

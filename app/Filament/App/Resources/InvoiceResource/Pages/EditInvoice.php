@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\InvoiceResource\Pages;
 
+use App\Actions\PayInvoice;
 use App\Enum\ContractInvoiceStatusEnum;
 use App\Filament\App\Resources\InvoiceResource;
 use App\Models\Invoice;
@@ -9,6 +10,7 @@ use App\ValueObjects\MoneyValue;
 use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\DB;
 
 class EditInvoice extends EditRecord
 {
@@ -31,10 +33,11 @@ class EditInvoice extends EditRecord
                 ->color('success')
                 ->requiresConfirmation()
                 ->action(function (Invoice $invoice, Actions\Action $action) {
-                    $invoice->status = ContractInvoiceStatusEnum::PAID->value;
-                    $invoice->payment_date = Carbon::now();
-                    $invoice->save();
-                    $action->success();
+                    DB::transaction(function () use ($invoice, $action) {
+                        $payInvoice = app(PayInvoice::class);
+                        $payInvoice->execute($invoice);
+                        $action->success();
+                    });
                 })->successRedirectUrl(ViewInvoice::getUrl(
                     ['record' => $this->getRecord()]
                 ))
