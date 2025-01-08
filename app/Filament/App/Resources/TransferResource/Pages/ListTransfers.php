@@ -10,11 +10,18 @@ class ListTransfers extends ListRecords
 {
     protected static string $resource = TransferResource::class;
 
-    protected static ?string $title = 'Valores disponíveis para repasse';
+    protected static ?string $title = 'Gestão de repasses';
 
     protected function getHeaderActions(): array
     {
         return [
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            TransferResource\Widgets\TransactionsAvailableForTransfer::class
         ];
     }
 }

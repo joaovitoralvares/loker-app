@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources;
 use App\Enum\OwnerTransactionStatusEnum;
 use App\Filament\App\Resources\TransferResource\Pages;
 use App\Filament\App\Resources\TransferResource\RelationManagers;
+use App\Filament\App\Resources\TransferResource\Widgets\TransactionsAvailableForTransfer;
 use App\Models\Invoice;
 use App\Models\Owner;
 use App\Models\OwnerTransaction;
@@ -25,7 +26,7 @@ use Illuminate\Support\Facades\DB;
 
 class TransferResource extends Resource
 {
-    protected static ?string $model = OwnerTransaction::class;
+    protected static ?string $model = OwnerTransfer::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-currency-dollar';
 
@@ -44,20 +45,19 @@ class TransferResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->heading('Repasses realizados')
             ->columns([
                 Tables\Columns\TextColumn::make('owner_id')->label('Proprietário')
                     ->formatStateUsing(fn($state) => Owner::query()->with('user')->find($state)?->user->name),
-                Tables\Columns\TextColumn::make('invoice_id')
-                    ->label('Fatura')
-                    ->formatStateUsing(fn($state) => '#' . $state),
                 Tables\Columns\TextColumn::make('amount')
                     ->label('Valor')
                     ->money('BRL', 100, 'pt_BR')
                     ->summarize([
-                        Tables\Columns\Summarizers\Sum::make()->label('Total disponível')->money('BRL', 100, 'pt_BR')->query(fn (\Illuminate\Database\Query\Builder $query) => $query->where('status', OwnerTransactionStatusEnum::PENDING->value)),
+                        Tables\Columns\Summarizers\Sum::make()->label('Total repassado')->money('BRL', 100, 'pt_BR'),
                     ]),
-                Tables\Columns\TextColumn::make('status')->label('Status'),
-
+                Tables\Columns\TextColumn::make('transferred_at')
+                ->label('Data')
+                ->date('d/m/Y'),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('owner_id')
@@ -72,7 +72,7 @@ class TransferResource extends Resource
                     )
                     ->selectablePlaceholder(false)
                     ->default(),
-                Tables\Filters\Filter::make('created_at')
+                Tables\Filters\Filter::make('transferred_at')
                     ->form([
                         Forms\Components\DatePicker::make('from')
                             ->label('Data início')
@@ -87,11 +87,11 @@ class TransferResource extends Resource
                         return $query
                             ->when(
                                 $data['from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('transferred_at', '>=', $date),
                             )
                             ->when(
                                 $data['until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('transferred_at', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
@@ -111,41 +111,14 @@ class TransferResource extends Resource
                     })
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('make_transfer')
-                    ->label('Realizar Repasse')
-                    ->requiresConfirmation()
-                ->modalDescription(fn (Collection $records) => 'Confirmar repasse de R$' . MoneyValue::from($records->sum('amount'))->toBRL() . '?')
-                ->action(function (Collection $records, Tables\Actions\BulkAction $action) {
-                    DB::transaction(function () use ($records, $action) {
-                        $total = $records->sum('amount');
-                        /** @var OwnerTransfer $transfer */
-                        $transfer = OwnerTransfer::create([
-                            'amount' => $total,
-                            'owner_id' => $records->first()->owner_id,
-                            'company_id' => Filament::getTenant()->id,
-                            'transferred_at' => now(),
-                        ]);
-
-                        $records->each(function (OwnerTransaction $transaction) use ($transfer) {
-                            $transaction->transfer()->associate($transfer);
-                            $transaction->status = OwnerTransactionStatusEnum::PAID->value;
-                            $transaction->save();
-                        });
-
-                        $action->successNotification(Notification::make()->title('Repasse realizado!')->success());
-                        $action->success();
-                    });
-                } )
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TransactionsRelationManager::class
         ];
     }
 
@@ -153,8 +126,14 @@ class TransferResource extends Resource
     {
         return [
             'index' => Pages\ListTransfers::route('/'),
-            'create' => Pages\CreateTransfer::route('/create'),
-            'edit' => Pages\EditTransfer::route('/{record}/edit'),
+            'view' => Pages\ViewTransfer::route('/{record}'),
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            TransactionsAvailableForTransfer::class
         ];
     }
 }
