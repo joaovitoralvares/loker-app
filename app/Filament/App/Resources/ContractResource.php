@@ -173,7 +173,7 @@ class ContractResource extends Resource
                             ->verticallyAlignStart()
                             ->formatStateUsing(fn($state) => match ($state) {
                                 ContractStatusEnum::ACTIVE->value => 'Ativo',
-                                ContractStatusEnum::FINISHED => 'Finalizado',
+                                ContractStatusEnum::FINISHED->value => 'Finalizado',
                             })
                             ->color(fn(string $state): string => match ($state) {
                                 ContractStatusEnum::ACTIVE->value => 'success',
@@ -181,6 +181,7 @@ class ContractResource extends Resource
                             })->icon(
                                 fn(string $state): string => match ($state) {
                                     ContractStatusEnum::ACTIVE->value => 'heroicon-o-play',
+                                    ContractStatusEnum::FINISHED->value => 'heroicon-o-check',
                                     default => 'heroicon-o-ellipsis-horizontal-circle',
                                 }
                             )->description('Status', 'above'),

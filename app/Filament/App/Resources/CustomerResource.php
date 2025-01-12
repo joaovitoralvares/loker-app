@@ -6,6 +6,7 @@ use App\Enum\MaritalStatusEnum;
 use App\Enum\PersonTypeEnum;
 use App\Enum\RoleEnum;
 use App\Filament\App\Resources\CustomerResource\Pages;
+use App\Filament\App\Resources\CustomerResource\Widgets\SecurityDepositTransactionsTable;
 use App\Models\Customer;
 use App\Models\User;
 use Filament\Forms;
@@ -166,6 +167,13 @@ class CustomerResource extends Resource
     {
         return [
             //
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+          SecurityDepositTransactionsTable::class
         ];
     }
 

@@ -6,13 +6,16 @@ use App\Enum\SecurityDepositTransactionStatusEnum;
 use App\Enum\SecurityDepositTransactionTypeEnum;
 use App\Models\SecurityDepositAccount;
 use App\Models\SecurityDepositTransaction;
+use Carbon\Carbon;
 
-class MakeDeposit
+class ScheduleWithdrawal
 {
+
     /**
      * @param array{
      *     account: SecurityDepositAccount,
      *     amount: int,
+     *     date: Carbon,
      *     contract_id: int,
      * } $data
      * @return SecurityDepositTransaction
@@ -23,15 +26,20 @@ class MakeDeposit
             throw new \DomainException('Amount must be greater than 0');
         }
 
-        $description = 'Depósito referente ao contrato #' . $data['contract_id'];
+        $description = 'Finalização do contrato #' . $data['contract_id'];
+        /** @var SecurityDepositAccount $account */
         $account = $data['account'];
 
+        if ($account->transactions()->where('contract_id', $data['contract_id'])->sum('amount') < $data['amount']) {
+            throw new \DomainException('Insufficient funds');
+        }
+
         return $account->transactions()->create([
-            'amount' => $data['amount'],
-            'type' => SecurityDepositTransactionTypeEnum::CREDIT,
+            'amount' => $data['amount'] * (-1),
+            'type' => SecurityDepositTransactionTypeEnum::DEBIT,
             'description' => $description,
-            'status' => SecurityDepositTransactionStatusEnum::PAID,
-            'date' => now(),
+            'status' => SecurityDepositTransactionStatusEnum::SCHEDULED,
+            'date' => $data['date'],
             'contract_id' => $data['contract_id'],
         ]);
     }

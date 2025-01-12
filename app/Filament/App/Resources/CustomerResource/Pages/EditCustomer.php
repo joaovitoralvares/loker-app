@@ -26,4 +26,11 @@ class EditCustomer extends EditRecord
         $data['user'] = $customer->user?->toArray();
         return $data;
     }
+
+    public function getFooterWidgets(): array
+    {
+        return [
+            CustomerResource\Widgets\SecurityDepositTransactionsTable::class,
+        ];
+    }
 }

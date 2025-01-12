@@ -7,8 +7,9 @@ use App\Enum\SecurityDepositTransactionTypeEnum;
 use App\Models\SecurityDepositAccount;
 use App\Models\SecurityDepositTransaction;
 
-class MakeDeposit
+class MakeWithdrawal
 {
+
     /**
      * @param array{
      *     account: SecurityDepositAccount,
@@ -23,12 +24,17 @@ class MakeDeposit
             throw new \DomainException('Amount must be greater than 0');
         }
 
-        $description = 'Depósito referente ao contrato #' . $data['contract_id'];
+        $description = 'Pagamento de pendência do contrato #' . $data['contract_id'];
+        /** @var SecurityDepositAccount $account */
         $account = $data['account'];
 
+        if ($account->transactions()->where('contract_id', $data['contract_id'])->sum('amount') < $data['amount']) {
+            throw new \DomainException('Insufficient funds');
+        }
+
         return $account->transactions()->create([
-            'amount' => $data['amount'],
-            'type' => SecurityDepositTransactionTypeEnum::CREDIT,
+            'amount' => $data['amount'] * (-1),
+            'type' => SecurityDepositTransactionTypeEnum::DEBIT,
             'description' => $description,
             'status' => SecurityDepositTransactionStatusEnum::PAID,
             'date' => now(),
